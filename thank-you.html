@@ -24,10 +24,17 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       --gray-l:#D8DCE8; --gray:#7A849A;
     }
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    html{scroll-behavior:smooth}
-    body{font-family:'DM Sans',sans-serif;background:var(--navy);color:var(--white);overflow-x:hidden;-webkit-font-smoothing:antialiased;min-height:100vh;display:flex;flex-direction:column}
+    html{scroll-behavior:smooth;scroll-padding-top:86px}
+    body{
+      font-family:'DM Sans',sans-serif;background:var(--navy);color:var(--white);overflow-x:hidden;
+      -webkit-font-smoothing:antialiased;min-height:100vh;display:flex;flex-direction:column;
+      animation:pageEnter .46s cubic-bezier(.4,0,.2,1) both;
+      transition:opacity .24s cubic-bezier(.4,0,.2,1),transform .24s cubic-bezier(.4,0,.2,1),filter .24s cubic-bezier(.4,0,.2,1);
+    }
+    body.page-leaving{opacity:0;transform:translateY(8px);filter:blur(2px)}
     a{text-decoration:none;color:inherit}
     button{cursor:pointer;border:none;font-family:inherit;background:none}
+    @keyframes pageEnter{from{opacity:0;transform:translateY(10px);filter:blur(2px)}to{opacity:1;transform:none;filter:none}}
 
     /* ─── NAV ─────────────────────────────────── */
     .nav {
@@ -80,12 +87,20 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       box-shadow: -4px 8px 32px rgba(0,0,0,.18);
       border-radius: 0 0 0 16px;
       padding: 8px 0 16px;
-      transform: translateX(110%);
-      transition: transform .3s cubic-bezier(.4,0,.2,1);
+      opacity: 0; visibility: hidden; pointer-events: none;
+      clip-path: inset(0 0 0 100%);
+      transition: clip-path .3s cubic-bezier(.4,0,.2,1), opacity .2s, visibility .2s;
       z-index: 199;
       overflow-y: auto;
     }
-    .nav-drawer.open { transform: translateX(0); }
+    .nav-drawer.open,
+    #navDrawer.open,
+    body.drawer-is-open #navDrawer {
+      opacity: 1 !important;
+      visibility: visible !important;
+      pointer-events: auto !important;
+      clip-path: inset(0) !important;
+    }
     .drawer-overlay {
       position: fixed; inset: 0; z-index: 198;
       background: rgba(8,12,26,.4);
@@ -198,12 +213,20 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       background: rgba(27,79,190,.06);
     }
     .ty-office-city {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 15px; font-weight: 800; text-transform: uppercase;
-      letter-spacing: .07em; color: #fff;
-      display: flex; align-items: center; gap: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px; font-weight: 800; text-transform: none;
+      letter-spacing: 0; color: #fff;
+      display: flex; align-items: center; gap: 9px;
     }
-    .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); flex-shrink: 0; animation: pulse 2s infinite; }
+    .country-flag {
+      width: 32px; height: 32px; border-radius: 50%;
+      display: inline-grid; place-items: center; flex-shrink: 0;
+      background: linear-gradient(135deg,rgba(255,255,255,.13),rgba(255,255,255,.04));
+      border: 1px solid rgba(255,255,255,.18);
+      box-shadow: 0 10px 24px rgba(0,0,0,.18);
+      font-family: 'DM Sans', sans-serif; font-size: 17px; line-height: 1;
+    }
+    .dot { display:none; }
     @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
     .ty-office-info { font-size: 12.5px; color: var(--gray-l); line-height: 1.65; }
 
@@ -397,7 +420,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
     <div class="ty-offices">
       <div class="ty-office">
-        <div class="ty-office-city"><span class="dot"></span>🇦🇷 Buenos Aires</div>
+        <div class="ty-office-city"><span class="country-flag" aria-label="Argentina">&#x1F1E6;&#x1F1F7;</span>Buenos Aires</div>
         <div class="ty-office-info">
           (+54) 9 11 5563-2027<br>
           comercial@mercocargas.com
@@ -407,7 +430,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         </a>
       </div>
       <div class="ty-office">
-        <div class="ty-office-city"><span class="dot"></span>🇦🇷 Córdoba</div>
+        <div class="ty-office-city"><span class="country-flag" aria-label="Argentina">&#x1F1E6;&#x1F1F7;</span>Córdoba</div>
         <div class="ty-office-info">
           (+54) 9 351 341-3964<br>
           l.luque@mercocargas.com
@@ -495,17 +518,27 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   const drawerOverlay = document.getElementById('drawerOverlay');
 
   function openDrawer() {
+    document.body.classList.add('drawer-is-open');
     navDrawer.classList.add('open');
     drawerOverlay.classList.add('open');
     hamburgerBtn.classList.add('open');
     hamburgerBtn.setAttribute('aria-expanded', 'true');
+    navDrawer.style.setProperty('opacity', '1', 'important');
+    navDrawer.style.setProperty('visibility', 'visible', 'important');
+    navDrawer.style.setProperty('pointer-events', 'auto', 'important');
+    navDrawer.style.setProperty('clip-path', 'inset(0)', 'important');
     document.body.style.overflow = 'hidden';
   }
   function closeDrawer() {
+    document.body.classList.remove('drawer-is-open');
     navDrawer.classList.remove('open');
     drawerOverlay.classList.remove('open');
     hamburgerBtn.classList.remove('open');
     hamburgerBtn.setAttribute('aria-expanded', 'false');
+    navDrawer.style.opacity = '';
+    navDrawer.style.visibility = '';
+    navDrawer.style.pointerEvents = '';
+    navDrawer.style.clipPath = '';
     document.body.style.overflow = '';
   }
 
@@ -514,6 +547,19 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   });
   drawerOverlay.addEventListener('click', closeDrawer);
   document.addEventListener('keydown', e => { if(e.key === 'Escape') closeDrawer(); });
+
+  document.querySelectorAll('a[href]').forEach(link => {
+    link.addEventListener('click', function(e) {
+      const href = this.getAttribute('href');
+      if (!href || href.startsWith('#') || href.startsWith('tel:') || href.startsWith('mailto:') || this.target === '_blank' || this.hasAttribute('download')) return;
+      const url = new URL(href, window.location.href);
+      if (url.origin !== window.location.origin) return;
+      e.preventDefault();
+      closeDrawer();
+      document.body.classList.add('page-leaving');
+      setTimeout(() => { window.location.href = url.href; }, 220);
+    });
+  });
 
   // Modal privacidade
   const modal=document.getElementById('privacyModal');
