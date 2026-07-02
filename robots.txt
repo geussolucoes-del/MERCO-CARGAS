@@ -1,6 +1,0 @@
-User-agent: *
-Allow: /
-Disallow: /thank-you.html
-Disallow: /thankyou.html
-
-Sitemap: https://merco-cargas.vercel.app/sitemap.xml
